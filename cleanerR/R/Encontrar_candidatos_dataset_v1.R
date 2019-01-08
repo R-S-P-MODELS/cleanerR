@@ -17,7 +17,8 @@ if(length(vec)==1)
 	x=length(unique(df[,vec] )   )
 else
 	x=nrow(unique(df[,vec] )   )
-vec[length(vec)+1]=goal
+#vec[length(vec)+1]=goal
+vec=append(vec,goal)
 m=plyr::count(df[,vec])
 z=nrow(m)
 #y[[1]]=z-x
@@ -51,20 +52,25 @@ return(y)
 generate_candidates=function(df,goal,maxi,repetitions,trigger=1){
 groups=1:ncol(df)
 groups=groups[-goal]
+if(length(groups)>maxi)
+  loop=maxi
+else
+  loop=length(groups)
 ###versao otimiziada mas que gera todas as combinacoes
 	#z= lapply(1:length(groups), function(x) combn(groups, x))
+  z=lapply(1:loop, function(x) combn(groups, x))
 ###traducao do lapply
-if(length(groups)>maxi ){
-		loop=maxi
-}
-else
-	loop=length(groups)
-z=list()
-for(i in 1:loop){
-	z[[i]]=combn(groups, i)
+#if(length(groups)>maxi ){
+#		loop=maxi
+#}
+#else
+#	loop=length(groups)
+#z=list()
+#or(i in 1:loop){
+#	z[[i]]=combn(groups, i)
 
 
-}
+#}
 vetores_candidatos=list()
 erros=c()
 cont=1
@@ -106,9 +112,13 @@ return(retorno)
 #'@export
 best_vector=function(df,goal,maxi,repetitions,trigger=1){
 z=generate_candidates(df,goal,maxi,repetitions,trigger)
+if(length(z[[1]])>0)
+  return(unlist(z[[1]][min(which(z[[2]]==min(z[[2]])))]) )
+else{
+  cat("Could not find any candidate, please use trigger=0\n")
+  return(0)
 
-return(unlist(z[[1]][min(which(z[[2]]==min(z[[2]])))]) )
-
+}
 
 }
 
@@ -170,20 +180,20 @@ autoComplete=function(df,goal,maxi,repetitions,trigger=1){
 #'\code{MeanAccuracy} Asks for a dataframe, a vector of collumn indices and the goal collumn the expected value of accuracy of filling missing values if the dataset is representative
 #' @param df A dataframe that you intend to fill missing values, warning this dataframe shall contain no missing values so the user must drop the lines it happens
 #' @param goal The collum with the missing values you wish to fill
-#' @param colunas The collumns you wish to use to predict the missing values
+#' @param VECTORS The collumns you wish to use to predict the missing values
 #'@export
-MeanAccuracy=function(df,colunas,goal){
- lixo=plyr::count(df[,c(colunas,goal)  ])
-  lixo1=unique(df[,colunas])
+MeanAccuracy=function(df,VECTORS,goal){
+ lixo=plyr::count(df[,c(VECTORS,goal)  ])
+  lixo1=unique(df[,VECTORS])
   lista=list()
-  if(length(colunas)>1)
+  if(length(VECTORS)>1)
     tamanho=nrow(lixo1)
   else
     tamanho=length(lixo1)
    for(j in 1:tamanho){
      vec=c()
      for(i in 1:nrow(lixo)){
-    if(length(colunas)>1   )
+    if(length(VECTORS)>1   )
      vec[i]=sum(lixo[i,1:ncol(lixo1)]==lixo1[j,1:ncol(lixo1)])==ncol(lixo1)
     else
       vec[i]=lixo[i,1]==lixo1[j]
@@ -200,10 +210,99 @@ for(i in 1:length(lista)){
   else{
     prob_auxiliar=lixo$freq[unlist(lista[[i]])]
     acumulado=sum(prob_auxiliar)
-    Pe=prob_auxiliar/acumulado #probabilidade de ser escolhedo
+    Pe=prob_auxiliar/acumulado #probabilidade de ser escolhido
     Pa=prob_auxiliar/maximo # probabilidade global
     prob=prob+sum(Pe*Pa)
   }
 }
   return(prob)
+}
+
+#'\code{BestAccuracy} Asks for a dataframe, a vector of collumn indices and the goal collumn and returns the maximum possible value of accuracy of filling missing values
+#' @param df A dataframe that you intend to fill missing values, warning this dataframe shall contain no missing values so the user must drop the lines it happens
+#' @param goal The collum with the missing values you wish to fill
+#' @param VECTORS The collumns you wish to use to predict the missing values
+#'@export
+BestAccuracy=function(df,VECTORS,goal){
+  auxiliar_vector=c()
+  lixo=plyr::count(df[,c(VECTORS,goal)  ])
+  lixo1=unique(df[,VECTORS])
+  lista=list()
+  if(length(VECTORS)>1)
+    tamanho=nrow(lixo1)
+  else
+    tamanho=length(lixo1)
+  for(j in 1:tamanho){
+    vec=c()
+    for(i in 1:nrow(lixo)){
+      if(length(VECTORS)>1   )
+        vec[i]=sum(lixo[i,1:ncol(lixo1)]==lixo1[j,1:ncol(lixo1)])==ncol(lixo1)
+      else
+        vec[i]=lixo[i,1]==lixo1[j]
+    }
+    lista[[j]]=vec
+  }
+  lista=lapply(lista,which)
+  maximo=sum(lixo$freq)
+  prob=0
+  #print()
+  for(i in 1:length(lista)){
+    if(length(lista[[i]])==1 )
+      #prob=prob+lixo$freq[lista[[i]]]/maximo # probabilidade de escolhelo 100%
+      auxiliar_vector[i]=1
+    else{
+      prob_auxiliar=lixo$freq[unlist(lista[[i]])]
+      acumulado=sum(prob_auxiliar)
+      Pe=prob_auxiliar/acumulado #probabilidade de ser escolhido
+      Pa=prob_auxiliar/maximo # probabilidade global
+      prob=prob+sum(Pe*Pa)
+      auxiliar_vector[i]=sum(Pe*Pe)
+    }
+  }
+  return(max(auxiliar_vector))
+}
+
+
+#'\code{WorstAccuracy} Asks for a dataframe, a vector of collumn indices and the goal collumn and returns the minimum possible value of accuracy of filling missing values
+#' @param df A dataframe that you intend to fill missing values, warning this dataframe shall contain no missing values so the user must drop the lines it happens
+#' @param goal The collum with the missing values you wish to fill
+#' @param VECTORS The collumns you wish to use to predict the missing values
+#'@export
+WorstAccuracy=function(df,VECTORS,goal){
+  auxiliar_vector=c()
+  lixo=plyr::count(df[,c(VECTORS,goal)  ])
+  lixo1=unique(df[,VECTORS])
+  lista=list()
+  if(length(VECTORS)>1)
+    tamanho=nrow(lixo1)
+  else
+    tamanho=length(lixo1)
+  for(j in 1:tamanho){
+    vec=c()
+    for(i in 1:nrow(lixo)){
+      if(length(VECTORS)>1   )
+        vec[i]=sum(lixo[i,1:ncol(lixo1)]==lixo1[j,1:ncol(lixo1)])==ncol(lixo1)
+      else
+        vec[i]=lixo[i,1]==lixo1[j]
+    }
+    lista[[j]]=vec
+  }
+  lista=lapply(lista,which)
+  maximo=sum(lixo$freq)
+  prob=0
+  #print()
+  for(i in 1:length(lista)){
+    if(length(lista[[i]])==1 )
+      #prob=prob+lixo$freq[lista[[i]]]/maximo # probabilidade de escolhelo 100%
+      auxiliar_vector[i]=1
+    else{
+      prob_auxiliar=lixo$freq[unlist(lista[[i]])]
+      acumulado=sum(prob_auxiliar)
+      Pe=prob_auxiliar/acumulado #probabilidade de ser escolhido
+      Pa=prob_auxiliar/maximo # probabilidade global
+      prob=prob+sum(Pe*Pa)
+      auxiliar_vector[i]=sum(Pe*Pe)
+    }
+  }
+  return(min(auxiliar_vector))
 }
