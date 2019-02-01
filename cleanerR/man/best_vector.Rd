@@ -4,7 +4,7 @@
 \alias{best_vector}
 \title{\code{best_vector} Asks for a dataframe and some parameters and returns the best combination of collums to predict the missing value}
 \usage{
-best_vector(df, goal, maxi, repetitions, trigger = 1)
+best_vector(df, goal, maxi, repetitions, trigger = 1, ratio = 0.99)
 }
 \arguments{
 \item{df}{A dataframe with the missing values you wish to fill}
@@ -15,8 +15,41 @@ best_vector(df, goal, maxi, repetitions, trigger = 1)
 
 \item{repetitions}{Measure of error, the bigger the less likely you will get the right prediction}
 
-\item{trigger}{If its 1 it wont use candidates that only show once, recomend to run always on 1  and on numeric values compare with 1 to 0}
+\item{trigger}{When you pair all possible combination of tuples a percentage of them will show only once, trigger rejects the set if this percentage is higher than this value}
+
+\item{ratio}{Rejects collumns that the ratio of unique values to total values is higher than this value, primary keys have ratio equal to 1}
 }
 \description{
 \code{best_vector} Asks for a dataframe and some parameters and returns the best combination of collums to predict the missing value
+}
+\examples{
+#The Best Vector Function shall do the following
+#Take a dataframe and a goal collumn to predict
+#Tests every combination of vectors limited by a parameter length
+#Returns the best set to predict the goal
+#Then to run some experiments first lets build a dataframe
+e=sample(1:2,1e2,replace=TRUE)
+e1=sample(1:2,1e2,replace=TRUE)
+e2=sample(1:2,1e2,replace=TRUE)
+e=data.frame(e,e1,e2,paste(LETTERS[e],LETTERS[e1]),paste(LETTERS[e],LETTERS[e1],LETTERS[e2])   )
+#We can easily see that to predict the last collumn you need the first three.
+#Lets Check what the function will find
+z=best_vector(e,5,3,nrow(e),1)
+print(z)
+#Lets now check what is the best set if we use only 2 collumns maximum
+z1=best_vector(e,5,2,nrow(e),1)
+print(z1)
+#We could also predict which collumn is best to predict the fourth one
+z2=best_vector(e,4,2,nrow(e),1)
+print(z2)
+#We could also take a look at the dataset iris.
+#Since this dataset does not repeat lines we must use trigger=0
+#To predict Species
+z3=best_vector(iris,5,2,nrow(iris),0)
+print(names(iris))[z3]
+#We can check the accuracy of these predictions with the accuracy functions
+print(MeanAccuracy(iris,z3,5))
+print(MeanAccuracy(e,z2,4))
+print(MeanAccuracy(e,z1,5))
+print(MeanAccuracy(iris,z,5))
 }

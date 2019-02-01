@@ -4,18 +4,19 @@ Title: How to Handle your Missing Data
 Version: 0.1.0
 Author: Rafael Silva Pereira
 Maintainer: Rafael Silva Pereira <r.s.p.models@gmail.com>
-Description: This Package was made to handle missing data
-    It is based on the concept of almost functional dependencies to fill missing data,as well as help you see what data is missing.
-    The user can specify a measure of error and how many combinations he wish to test the dependencies against, the closer to the length of the dataset, the more precise
-    But the higher the number the more time it will take for the process to finish
-    If the program cannot predict with the accuracy determined by the user it shall not fill the data, the user then can choose to increase the error or deal with the data another way
+Description: How to deal with missing data?Based on the concept of almost functional dependencies, a method is proposed to fill missing data, as well as help you see what data is missing.
+    The user can specify a measure of error and how many combinations he wish to test the dependencies against, the closer to the length of the dataset, the more precise.
+    But the higher the number, the more time it will take for the process to finish.
+    If the program cannot predict with the accuracy determined by the user it shall not fill the data, the user then can choose to increase the error or deal with the data another way.
 License: MIT + file LICENSE  
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 6.1.0.9000
 Imports:
-    plyr
+    plyr,
+    data.table
 Suggests: 
     knitr,
-    rmarkdown
+    rmarkdown,
+    testthat
 VignetteBuilder: knitr

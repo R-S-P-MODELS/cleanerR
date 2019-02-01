@@ -16,7 +16,7 @@ candidates(df, goal, vec, repetitions, trigger = 1)
 
 \item{repetitions}{Measure of error, the bigger the less likely you will get the right prediction}
 
-\item{trigger}{If its 1 it wont use candidates that only show once, recomend to run always on 1  and on numeric values compare with 1 to 0}
+\item{trigger}{When you pair all possible combination of tuples a percentage of them will show only once, trigger rejects the set if this percentage is higher than this value}
 }
 \description{
 \code{candidates} Asks for a dataframe and some parameters and returns how close the collums chosen can predict the goal collum
