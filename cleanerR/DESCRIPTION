@@ -1,7 +1,7 @@
 Package: cleanerR
 Type: Package
 Title: How to Handle your Missing Data
-Version: 0.1.0
+Version: 0.1.1
 Author: Rafael Silva Pereira
 Maintainer: Rafael Silva Pereira <r.s.p.models@gmail.com>
 Description: How to deal with missing data?Based on the concept of almost functional dependencies, a method is proposed to fill missing data, as well as help you see what data is missing.

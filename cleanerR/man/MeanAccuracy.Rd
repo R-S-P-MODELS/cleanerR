@@ -30,7 +30,7 @@ print(MeanAccuracy(iris,1,5))
 #Now lets use both sepal parameters
 ##print(MeanAccuracy(iris,1:2,5))
 #And when using a Petal parameter as well
-print(MeanAccuracy(iris,1:3,5))
+##print(MeanAccuracy(iris,1:3,5))
 #We can see that iris even in the Mean case scenario species can be defined by these 3
 #Now lets take a look at the mtcars dataset
 ##print(names(mtcars))
